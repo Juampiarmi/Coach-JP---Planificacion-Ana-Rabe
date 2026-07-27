@@ -479,7 +479,7 @@
   <div class="hero-stats">
     <div class="stat-pill"><div class="stat-dot"></div><b id="stat-count">0</b>&nbsp;sesiones programadas</div>
     <div class="stat-pill"><div class="stat-dot" style="background:var(--violet)"></div>Split&nbsp;<b>Upper/Lower</b>&nbsp;+ Viernes Glúteo (5 días fijos)</div>
-    <div class="stat-pill"><div class="stat-dot" style="background:var(--gold)"></div><b>RPE 7-8</b>&nbsp;· Aclimatación Semana 1</div>
+    <div class="stat-pill"><div class="stat-dot" style="background:var(--gold)"></div><b id="stat-rpe-label">RPE 7-8</b>&nbsp;<span id="stat-week-phase">· Semana 1 — Aclimatación</span></div>
     <div class="progress-wrap">
       <div class="progress-label"><span>Progreso semanal</span><b id="progress-pct">0%</b></div>
       <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
@@ -500,6 +500,13 @@
     <button type="button" class="week-btn" data-week="2">Semana 2</button>
     <button type="button" class="week-btn" data-week="3">Semana 3</button>
     <button type="button" class="week-btn" data-week="4">Semana 4 (Descarga)</button>
+  </div>
+  <div class="mesociclo-box" id="week-guide-box" style="border-color: rgba(255,214,0,0.2);">
+    <h3 id="week-guide-title" style="color:var(--gold);">Cargando…</h3>
+    <p id="week-guide-description"></p>
+    <div class="mesociclo-warning" style="border-left-color: var(--gold);">
+      <strong>💡 Consejo del Coach:</strong> <span id="week-guide-coachnote"></span>
+    </div>
   </div>
   <div class="mesociclo-box" id="mesociclo-content">
     <h3>Metodología: Split Upper/Lower a 5 días fijos (Lunes a Viernes)</h3>
@@ -580,14 +587,124 @@
    ============================================================ */
 const ATHLETE_CONFIG = {
   name: "Ana Rabe",
-  objective: "Mesociclo de Hipertrofia — Semana 1: Aclimatación Progresiva Post-10K",
-  levelBadge: "Semana 1 de 4 · Fase de Aclimatación (RPE 7-8)",
-  specialCare: "Historial reciente de lumbalgia — priorizamos ejercicios con soporte de torso/respaldo y evitamos carga axial libre innecesaria. Viene de completar una semana de descarga y corrió una carrera de 10K el domingo pasado: hay fatiga residual en piernas, fascia plantar y cadena posterior/lumbar. Techo de esfuerzo esta semana: RPE 7-8, nunca al fallo."
+  objective: "Mesociclo de Hipertrofia — Split Upper/Lower + Especialización de Glúteo (4 Semanas)",
+  specialCare: "Historial reciente de lumbalgia — priorizamos ejercicios con soporte de torso/respaldo y evitamos carga axial libre innecesaria. Viene de completar una semana de descarga y corrió una carrera de 10K el domingo pasado: hay fatiga residual en piernas, fascia plantar y cadena posterior/lumbar."
 };
 document.getElementById('student-name-text').textContent = ATHLETE_CONFIG.name;
 document.getElementById('student-objective-text').textContent = ATHLETE_CONFIG.objective;
-document.getElementById('nav-badge-level').textContent = ATHLETE_CONFIG.levelBadge;
 document.getElementById('student-injury-text').textContent = ATHLETE_CONFIG.specialCare;
+/* ============================================================
+   PROGRAMACIÓN SEMANA A SEMANA DEL MESOCICLO (4 semanas)
+   Cada semana ajusta el RPE objetivo, el volumen (series) y,
+   en Semana 3, activa el esquema Top Set + Back-off en el
+   ejercicio ancla (🔑) de cada sesión de Lunes a Jueves.
+   El Viernes de Glúteo es "día liviano": su RPE se mueve menos
+   que el resto de la semana (flag workout.isLightDay).
+   ============================================================ */
+const WEEK_META = {
+  1: {
+    shortLabel: "Semana 1",
+    label: "Semana 1 — Aclimatación Progresiva",
+    badge: "Fase de Aclimatación",
+    rpeShift: 0,
+    lightDayRpeShift: 0,
+    setsDelta: 0,
+    approachHint: "Hacé el protocolo completo (2-3 aproximaciones) en los ejercicios ancla — es la primera semana, no te apures a cargar peso.",
+    description: "Primera semana del mesociclo, viniendo de la semana de descarga y la carrera de 10K. El objetivo NO es cargar al máximo — es reencontrar la técnica y activar cada patrón de movimiento. Techo de esfuerzo: RPE 7-8 en los días principales (Lunes a Jueves), RPE 6-7 el viernes de glúteo. Ninguna serie al fallo.",
+    coachNote: "Si algo se siente pesado a un RPE que debería ser moderado, es una señal de la fatiga de la carrera — respetá el número, no el ego."
+  },
+  2: {
+    shortLabel: "Semana 2",
+    label: "Semana 2 — Progresión de Carga",
+    badge: "Fase de Progresión",
+    rpeShift: 1,
+    lightDayRpeShift: 0,
+    setsDelta: 0,
+    approachHint: "Con 2 aproximaciones alcanza — el sistema nervioso ya conoce el patrón de la semana pasada.",
+    description: "Mismo volumen que la Semana 1 (mismas series), pero ahora el objetivo es subir el peso manteniendo la técnica — el cuerpo ya activó el patrón la semana pasada. Techo de esfuerzo: RPE 8-9 en los días principales. El viernes de glúteo se mantiene en RPE 6-7: sigue siendo el día liviano de la semana, todavía no le toca subir.",
+    coachNote: "Regla simple: si la semana pasada hiciste una serie a RPE 7 con determinado peso, esta semana buscá ese mismo peso a RPE 8 (más cerca del esfuerzo) o subilo un poco si la técnica lo banca entera."
+  },
+  3: {
+    shortLabel: "Semana 3",
+    label: "Semana 3 — Pico de Intensidad (Heavy Duty)",
+    badge: "Fase de Pico",
+    rpeShift: 2,
+    lightDayRpeShift: 1,
+    setsDelta: 0,
+    approachHint: "Aproximá igual que siempre hasta llegar a una carga desafiante, y ahí buscá el Top Set real — con técnica completa.",
+    description: "La semana de mayor exigencia del mesociclo. En el ejercicio ancla 🔑 de cada sesión de Lunes a Jueves se activa el esquema Heavy Duty real: Top Set (una serie llevada a RPE 9-10, cerca o en el fallo técnico con buena forma) + Back-off (bajar ~15% el peso y hacer una serie más al máximo de repeticiones posibles). El resto de los bloques también suben de intensidad. El viernes de glúteo sube apenas a RPE 7-8 — sigue sin buscar el fallo, solo acompaña el pico de la semana.",
+    coachNote: "El Top Set no es 'lo más pesado que puedas levantar como sea' — es la serie más pesada posible CON técnica completa. Si la técnica se rompe, esa no era tu Top Set."
+  },
+  4: {
+    shortLabel: "Semana 4",
+    label: "Semana 4 — Descarga (Deload)",
+    badge: "Fase de Descarga",
+    rpeShift: -2,
+    lightDayRpeShift: -1,
+    setsDelta: -1,
+    approachHint: "Con 1 aproximación liviana alcanza — esta semana no hay que acercarse a un peso pesado.",
+    description: "Semana de descarga: una serie menos en cada bloque principal (~30% menos volumen) y techo de esfuerzo bajo (RPE 5-6 en los días principales, RPE 5-6 también el viernes). El objetivo es disipar la fatiga acumulada de las 3 semanas anteriores, no seguir progresando. Sin aproximaciones pesadas, sin series al fallo. Los Bloques Opcionales (Finisher + Core) son opcionales de verdad esta semana — si Ana llega cansada, mejor saltarlos con el Modo Rápido.",
+    coachNote: "Bajar la intensidad esta semana no es 'perder progreso' — es lo que permite que el próximo mesociclo arranque con más peso en la barra que este. Es una inversión, no una pausa."
+  }
+};
+function getWeekMeta(week) { return WEEK_META[week] || WEEK_META[1]; }
+function shiftRpeLabel(rpeLabel, shift) {
+  if (!rpeLabel || !shift) return rpeLabel;
+  const nums = rpeLabel.match(/\d+(\.\d+)?/g);
+  if (!nums) return rpeLabel;
+  const shifted = nums.map((n) => {
+    const v = Math.max(5, Math.min(10, Math.round(parseFloat(n) + shift)));
+    return String(v);
+  });
+  const unique = [...new Set(shifted)];
+  return 'RPE ' + unique.join('-');
+}
+function getEffectiveRpe(baseRpe, week, isLightDay) {
+  if (!baseRpe) return baseRpe;
+  const meta = getWeekMeta(week);
+  const shift = isLightDay ? meta.lightDayRpeShift : meta.rpeShift;
+  return shiftRpeLabel(baseRpe, shift);
+}
+function getEffectiveSets(baseSets, week, isAnchorTopSetWeek) {
+  if (!baseSets) return baseSets;
+  if (isAnchorTopSetWeek) return 2;
+  const meta = getWeekMeta(week);
+  if (meta.setsDelta) return Math.max(2, baseSets + meta.setsDelta);
+  return baseSets;
+}
+function getEffectiveReps(ex, block, week) {
+  const isAnchorTopSetWeek = week === 3 && block.isAnchor && block.format === 'straight';
+  if (isAnchorTopSetWeek) {
+    return 'Top Set: 1 serie máx. técnica (4-6 rep) RPE 9-10 + Back-off: -15% carga × máx. rep';
+  }
+  return ex.reps;
+}
+function renderWeekGuide(workout) {
+  const meta = getWeekMeta(currentWeek);
+  return `
+    <div class="block" style="border: 1px solid rgba(255,214,0,0.3); background: rgba(255,214,0,0.03);">
+      <div class="block-header"><div class="block-title" style="color: var(--gold);">📅 ${meta.label}</div></div>
+      <div class="block-content" style="font-size: 13.5px; color: var(--text-secondary); padding: 1rem 0;">
+        <p style="margin-bottom: 0.75rem;">${meta.description}</p>
+        <p><strong style="color:var(--fire-glow)">💡 Consejo del Coach:</strong> ${meta.coachNote}</p>
+      </div>
+    </div>`;
+}
+function updateWeekGuideBox() {
+  const meta = getWeekMeta(currentWeek);
+  document.getElementById('week-guide-title').textContent = meta.label;
+  document.getElementById('week-guide-description').textContent = meta.description;
+  document.getElementById('week-guide-coachnote').textContent = meta.coachNote;
+}
+function updateHeroForWeek() {
+  const meta = getWeekMeta(currentWeek);
+  document.getElementById('nav-badge-level').textContent = `${meta.shortLabel} · ${meta.badge}`;
+  const rpeLabelEl = document.getElementById('stat-rpe-label');
+  const phaseEl = document.getElementById('stat-week-phase');
+  if (rpeLabelEl) rpeLabelEl.textContent = shiftRpeLabel('RPE 7-8', meta.rpeShift);
+  if (phaseEl) phaseEl.textContent = `· ${meta.shortLabel} — ${meta.badge}`;
+  updateWeekGuideBox();
+}
 /* ============================================================
    DATOS DE LAS SESIONES
    ============================================================ */
@@ -597,7 +714,7 @@ const workouts = [
     title: "UPPER A — Empuje y Tracción Horizontal",
     subtitle: "Pecho, Espalda, Hombros, Brazos",
     discipline: "Hipertrofia — Tren Superior",
-    level: "Upper A · Semana 1",
+    level: "Upper A",
     levelSlug: "upper-a",
     desc: "Sesión 1 del mesociclo — aclimatación progresiva post-10K. Press de banca y remo sentado como ejes (con soporte de torso), biset de empuje vertical sentado + salud de hombro, triset de espalda y brazos, finisher de bombeo controlado y cierre de core anti-rotación.",
     duration: { base: 60, full: 80 },
@@ -616,12 +733,13 @@ const workouts = [
         { label: "Series de trabajo", detail: "Recién ahí arrancan las series que figuran en la tabla de cada bloque (las que se marcan en la app) — con el cuerpo ya activado y sin haber gastado energía de más en el camino." }
       ],
       rule: "Cuantas menos repeticiones busca la serie de trabajo (más pesado, más técnico), más aproximaciones hacen falta. Con series de trabajo de 8-12 reps como las de hoy, con 2-3 aproximaciones alcanza. Para ejercicios de aislamiento (curl, extensión, face pull, elevaciones) no hace falta este proceso completo — con 1 serie liviana de activación es suficiente.",
-      appliesTo: "Bloque 1 (Press de Banca Plano), Bloque 2 (Remo Sentado) y Bloque 3-A1 (Press de Hombros Sentado) — los tres movimientos con carga externa progresiva del día."
+      appliesTo: "Bloque 1 (Press de Banca Plano), Bloque 2 (Remo Kelso) y Bloque 3-A1 (Press de Hombros Sentado) — los tres movimientos con carga externa progresiva del día."
     },
     main: [
       {
         title: "Bloque 1 — Press de Banca Plano con Barra",
         format: "straight",
+        isAnchor: true,
         restSeconds: 150,
         approachNote: "Hacé 2-3 series de aproximación antes de la primera serie efectiva (protocolo completo arriba, antes de los Bloques Principales). No se registran en la app.",
         tips: "Escápulas retraídas y deprimidas contra el banco todo el set; la barra baja hasta rozar el pecho con pausa real (no rebote); intención máxima en la fase concéntrica. Semana 1: priorizamos técnica limpia por sobre cargar al límite.",
@@ -632,15 +750,15 @@ const workouts = [
         ]
       },
       {
-        title: "Bloque 2 — Remo Sentado con Agarre Estrecho",
+        title: "Bloque 2 — Remo Kelso (Chest-Supported)",
         format: "straight",
         restSeconds: 120,
         approachNote: "Aproximá con 2 series livianas antes de la primera serie efectiva — mismo criterio que el Bloque 1, pero al ser tracción con soporte de torso alcanza con 2 en vez de 3.",
-        tips: "Torso fijo contra el respaldo/soporte, tirar con los codos (no con las manos), pico de contracción con retracción escapular consciente 1 segundo. La posición sentada con soporte reduce la demanda de estabilización lumbar frente a un remo libre de pie.",
-        objetivo: "Tracción horizontal con foco en dorsal ancho/trapecio medio, con mínima exigencia de estabilización de columna — ideal para semana 1 post-lumbalgia.",
-        sensacion: "La sensación objetivo es 'apretar un lápiz entre los omóplatos' en el punto alto de cada repetición. Si sentís que el bíceps carga más que la espalda media, estás usando impulso en vez de tracción pura.",
+        tips: "Acostada boca abajo sobre un banco inclinado, pecho totalmente apoyado, mancuernas colgando. Los codos suben hacia los costados (no derecho hacia atrás, como en un remo tradicional) buscando juntar los omóplatos arriba. Cero movimiento de torso — el banco hace todo el trabajo de estabilización.",
+        objetivo: "Tracción horizontal con el torso 100% apoyado — cero demanda de estabilización lumbar, y solo necesita mancuernas y un banco inclinado (sin depender de la polea sentada que no hay en ese gimnasio).",
+        sensacion: "La espalda media y la parte posterior del hombro deben sentir el trabajo de juntar los omóplatos arriba. Si sentís que el bíceps predomina, bajá el peso y priorizá que el codo suba hacia afuera, no hacia atrás.",
         exercises: [
-          { name: "Remo Sentado con Agarre Estrecho (Seated Cable Row)", yt: "E7hwROyG3qo", sets: 3, reps: "3x10-12", tempo: "2111", rpe: "RPE 7" }
+          { name: "Remo Kelso (Kelso Row)", yt: "t6QJTiz35dc", sets: 3, reps: "3x10-12", tempo: "2111", rpe: "RPE 7" }
         ]
       },
       {
@@ -679,7 +797,7 @@ const workouts = [
       sensacion: "Bombeo notorio en pecho y espalda, pero sin la sensación de 'no puedo más' — dejamos 1-2 repeticiones en reserva a propósito.",
       exercises: [
         { label: "A1", name: "Aperturas en Banco Plano con Poleas", yt: "05_meIKMKFA", reps: "RIR 1-2, tempo 3-1-1" },
-        { label: "A2", name: "Remo Sentado con Agarre Estrecho (carga liviana)", yt: "E7hwROyG3qo", reps: "RIR 1-2, tempo 3-1-1" }
+        { label: "A2", name: "Remo Kelso (carga liviana)", yt: "t6QJTiz35dc", reps: "RIR 1-2, tempo 3-1-1" }
       ]
     },
     core: {
@@ -705,9 +823,9 @@ const workouts = [
     title: "LOWER A — Cuádriceps-dominante + Glúteo",
     subtitle: "Piernas — Cuádriceps y Glúteo",
     discipline: "Hipertrofia — Tren Inferior",
-    level: "Lower A · Semana 1",
+    level: "Lower A",
     levelSlug: "lower-a",
-    desc: "Sesión 2 de la semana — Prensa de Piernas y Hip Thrust como ejes, sin carga axial libre en columna, biset unilateral búlgara + isquios, triset de glúteo medio y gemelo, finisher controlado y cierre de core anti-extensión.",
+    desc: "Sesión 2 de la semana — Sentadilla Goblet e Hip Thrust como ejes, sin carga axial libre en columna y sin depender de prensa ni máquinas específicas, biset unilateral búlgara + isquios, triset de glúteo medio y gemelo, finisher controlado y cierre de core anti-extensión.",
     duration: { base: 60, full: 80 },
     warmup: [
       { name: "Sentadilla Isométrica Media con Abducción de Banda", reps: "2x30s, banda liviana", yt: "4QHr6xPHKQE" },
@@ -724,19 +842,20 @@ const workouts = [
         { label: "Series de trabajo", detail: "Recién ahí arrancan las series que figuran en la tabla de cada bloque — las que se marcan en la app." }
       ],
       rule: "Con series de trabajo de 8-10 reps como las de hoy, 2-3 aproximaciones alcanzan. Los bloques de aislamiento/unilaterales no necesitan el proceso completo — con 1 serie liviana de activación por lado es suficiente.",
-      appliesTo: "Bloque 1 (Prensa de Piernas Inclinada 45°) y Bloque 2 (Hip Thrust con Barra) — los dos movimientos con carga externa progresiva del día."
+      appliesTo: "Bloque 1 (Sentadilla Goblet) y Bloque 2 (Hip Thrust con Barra) — los dos movimientos con carga externa progresiva del día."
     },
     main: [
       {
-        title: "Bloque 1 — Prensa de Piernas Inclinada 45°",
+        title: "Bloque 1 — Sentadilla Goblet con Mancuerna",
         format: "straight",
+        isAnchor: true,
         restSeconds: 150,
         approachNote: "Hacé 2-3 series de aproximación antes de la primera serie efectiva (protocolo arriba). No se registran en la app.",
-        tips: "Pies a la altura de los hombros, no bloquear rodillas arriba, bajar hasta que la zona lumbar empiece a despegarse del respaldo sin pasarse. Reemplaza a la Sentadilla Trasera con Barra para eliminar la carga axial libre en columna.",
-        objetivo: "Dominante de cuádriceps con la columna totalmente sostenida por el respaldo — mismo estímulo que un squat libre, sin el riesgo lumbar.",
-        sensacion: "El cuádriceps debe sentirse como el motor principal de la subida en todo el recorrido. Si sentís tensión en la zona lumbar, acortá el rango y revisá que la espalda no se despegue del respaldo.",
+        tips: "Mancuerna sostenida verticalmente contra el pecho con ambas manos, codos apuntando hacia abajo entre las rodillas en la posición baja. Torso lo más vertical posible — la carga frontal ayuda naturalmente a mantener la columna neutra, sin necesitar ninguna máquina.",
+        objetivo: "Dominante de cuádriceps sin depender de prensa ni de ninguna máquina — la carga frontal es, en sí misma, protectora de la zona lumbar porque exige mantener el torso erguido durante todo el recorrido.",
+        sensacion: "El cuádriceps debe sentirse trabajando en todo el recorrido. Si los antebrazos/agarre fallan antes que las piernas, es una limitación de agarre, no de fuerza — avisame y ahí evaluamos sumar una segunda mancuerna a los costados para seguir sobrecargando.",
         exercises: [
-          { name: "Prensa de Piernas Inclinada 45°", yt: "EotSw18oR9w", sets: 3, reps: "3x8-10", tempo: "3110", rpe: "RPE 7-8" }
+          { name: "Sentadilla Goblet con Mancuerna", yt: "PP4XRTIIyRI", sets: 3, reps: "3x8-10", tempo: "3110", rpe: "RPE 7-8" }
         ]
       },
       {
@@ -767,13 +886,13 @@ const workouts = [
         title: "Bloque 4 — Glúteo Medio + Gemelo",
         format: "triset",
         restSeconds: 80,
-        tips: "En la prensa unilateral, empujá pensando en 'alejar el piso con el talón' para priorizar glúteo. En la abducción, torso inclinado adelante para aislar mejor el glúteo medio.",
-        objetivo: "Acumulación de volumen eficiente en glúteo medio y gemelos, cerrando el volumen del día.",
-        sensacion: "En la abducción, la sensación debe estar en el costado de la cadera (glúteo medio), no en el cuádriceps externo. En la elevación de talón, sentí el estiramiento completo abajo antes de cada subida.",
+        tips: "En el hip thrust unilateral, apoyá la espalda alta en un banco, un pie firme en el piso y empujá con el talón hasta extensión completa de cadera, sin rotar el torso. En la abducción, torso inclinado adelante para aislar mejor el glúteo medio. En la elevación de talón, barra apoyada en la espalda alta.",
+        objetivo: "Acumulación de volumen eficiente en glúteo medio y gemelos, cerrando el volumen del día — sin depender de la prensa de piernas.",
+        sensacion: "En el hip thrust unilateral, la pierna de apoyo debe sentir el glúteo en extensión completa. En la abducción, la sensación debe estar en el costado de la cadera (glúteo medio), no en el cuádriceps externo. En la elevación de talón, sentí el estiramiento completo abajo antes de cada subida.",
         exercises: [
-          { label: "A1", name: "Prensa de Piernas Unilateral Enfoque Glúteo", yt: "shEx8bc3070", sets: 3, reps: "3x10-12/pierna", tempo: "2110" },
+          { label: "A1", name: "Hip Thrust Unilateral con Mancuerna", yt: "KW7yo5x7-HI", sets: 3, reps: "3x10-12/pierna", tempo: "2110" },
           { label: "A2", name: "Abducción de Cadera en Máquina Inclinado Adelante", yt: "rfm_mExk_Fc", sets: 3, reps: "3x15", tempo: "2020" },
-          { label: "A3", name: "Elevación de Talones en Prensa de Piernas", yt: "1cvpm--Y-4I", sets: 3, reps: "3x12-15", tempo: "2111" }
+          { label: "A3", name: "Elevación de Talones de Pie con Barra", yt: "B-hAGoWQzTM", sets: 3, reps: "3x12-15", tempo: "2111" }
         ]
       }
     ],
@@ -802,7 +921,7 @@ const workouts = [
     ],
     technicalAnalysis: {
       objectives: "Dominante de rodilla (cuádriceps) vía máquina con soporte de espalda como eje, dominante de glúteo apoyado como segundo compuesto, unilateral e isquiotibiales como balance articular, glúteo medio y gemelos de cierre.",
-      tips: "Ningún ejercicio del día carga la columna en libre — toda la sesión usa máquinas, bancos o apoyos que sostienen la espalda, clave en esta etapa post-lumbalgia.",
+      tips: "Ningún ejercicio pesado del día usa carga axial libre en la espalda (nada de back squat ni RDL pesado). El trabajo pesado se hace con carga frontal (goblet) o apoyada (hip thrust) — dos formas de proteger la zona lumbar sin depender de una prensa o máquina específica.",
       strategies: "Series efectivas totales: ~15 en bloques principales + 4 en el finisher + 6 en el core opcional = 25 en modo completo. RPE tope 7-8, igual que el resto de la semana (sin ondulación este día)."
     }
   },
@@ -811,7 +930,7 @@ const workouts = [
     title: "UPPER B — Empuje Inclinado / Tracción Vertical",
     subtitle: "Hombro Lateral y Brazos",
     discipline: "Hipertrofia — Tren Superior",
-    level: "Upper B · Semana 1",
+    level: "Upper B",
     levelSlug: "upper-b",
     desc: "Sesión 3 de la semana — Press inclinado y dominadas como ejes, biset de empuje rotacional sentado + deltoide posterior, triset de espalda media y brazos en estiramiento, finisher de deltoide lateral y cierre de core.",
     duration: { base: 60, full: 80 },
@@ -836,6 +955,7 @@ const workouts = [
       {
         title: "Bloque 1 — Press de Banca Inclinado con Barra",
         format: "straight",
+        isAnchor: true,
         restSeconds: 150,
         approachNote: "Hacé 2-3 series de aproximación antes de la primera serie efectiva (protocolo arriba). No se registran en la app.",
         tips: "Banco a 30-45° (no más). La barra baja hacia la clavícula, no hacia el esternón.",
@@ -917,9 +1037,9 @@ const workouts = [
     title: "LOWER B — Bisagra de Cadera / Isquiotibiales",
     subtitle: "Piernas — Isquiotibiales y Glúteo",
     discipline: "Hipertrofia — Tren Inferior",
-    level: "Lower B · Semana 1",
+    level: "Lower B",
     levelSlug: "lower-b",
-    desc: "Sesión 4 de la semana — Peso Muerto Rumano B-Stance y Sentadilla Hack Inversa como ejes (ambos con mínima demanda lumbar), biset de zancadas + gemelo, triset de glúteo/aductor/isquios, finisher y cierre de core.",
+    desc: "Sesión 4 de la semana — Peso Muerto Rumano B-Stance y Step-up de Cuádriceps como ejes (ambos con mínima demanda lumbar y sin depender de prensa, hack ni polea baja sentada), biset de zancadas + gemelo, triset de glúteo/aductor/isquios, finisher y cierre de core.",
     duration: { base: 60, full: 80 },
     warmup: [
       { name: "Sentadilla Isométrica Media con Abducción de Banda", reps: "2x30s, banda liviana", yt: "4QHr6xPHKQE" },
@@ -935,13 +1055,14 @@ const workouts = [
         { label: "Aprox. 3", detail: "~80-85% del peso de trabajo × 3-4 rep, RPE 6-7. Descanso 90-120seg." },
         { label: "Series de trabajo", detail: "Recién ahí arrancan las series que figuran en la tabla de cada bloque — las que se marcan en la app." }
       ],
-      rule: "En el Bloque 1 (unilateral) aproximá con 1-2 series livianas por lado. En el Bloque 2 (bilateral, máquina) con 2-3 series alcanza.",
-      appliesTo: "Bloque 1 (Peso Muerto Rumano B-Stance) y Bloque 2 (Sentadilla Hack Inversa)."
+      rule: "En el Bloque 1 y el Bloque 2 (ambos unilaterales) aproximá con 1-2 series livianas por lado.",
+      appliesTo: "Bloque 1 (Peso Muerto Rumano B-Stance) y Bloque 2 (Step-up Enfocado en Cuádriceps)."
     },
     main: [
       {
         title: "Bloque 1 — Peso Muerto Rumano B-Stance con Mancuernas",
         format: "straight",
+        isAnchor: true,
         restSeconds: 150,
         approachNote: "Aproximá con 1-2 series livianas por lado antes de la efectiva (protocolo arriba). No se registran en la app.",
         tips: "Postura escalonada (el pie de atrás solo roza el piso, de apoyo), espalda neutra todo el recorrido, la cadera se retrae hacia atrás. Reemplaza al RDL bilateral con barra: mismas cargas relativas, mucho más fácil de controlar la columna.",
@@ -952,15 +1073,15 @@ const workouts = [
         ]
       },
       {
-        title: "Bloque 2 — Sentadilla Hack Inversa en Máquina",
+        title: "Bloque 2 — Step-up Enfocado en Cuádriceps",
         format: "straight",
         restSeconds: 150,
-        approachNote: "2-3 series de aproximación antes de la efectiva.",
-        tips: "Espalda completamente apoyada en la máquina en todo momento, rango controlado, sin bloquear rodillas arriba.",
-        objetivo: "Segundo compuesto de cuádriceps sin sumar fatiga lumbar al Bloque 1 — la máquina sostiene la columna en toda la trayectoria.",
-        sensacion: "El cuádriceps debe sentirse trabajando en todo el recorrido, sin ninguna tensión en la zona lumbar (la espalda no se mueve del respaldo).",
+        approachNote: "1-2 series de aproximación livianas por lado antes de la efectiva.",
+        tips: "Altura de cajón/banco a la rodilla o levemente más abajo. Todo el impulso sale del talón de la pierna de arriba — evitá empujar con el pie de abajo. Torso erguido, sin inclinarte hacia adelante (eso saca la cadera del patrón y mete zona lumbar).",
+        objetivo: "Segundo estímulo de cuádriceps del día, unilateral y sin ninguna máquina — solo mancuernas y un cajón o banco estable, ideal para el gimnasio sin prensa ni hack.",
+        sensacion: "El cuádriceps de la pierna de arriba debe sentirse trabajando en toda la subida. Si sentís que 'saltás' o te impulsás con la pierna de abajo, bajá el peso o la altura del cajón.",
         exercises: [
-          { name: "Sentadilla Hack Inversa en Máquina", yt: "eVexZxVN6kc", sets: 3, reps: "3x8-10", tempo: "3110", rpe: "RPE 7-8" }
+          { name: "Step-up Enfocado en Cuádriceps", yt: "Ey2H3-zmzSk", sets: 3, reps: "3x8-10/pierna", tempo: "3110", rpe: "RPE 7-8" }
         ]
       },
       {
@@ -1013,17 +1134,18 @@ const workouts = [
       "Estiramiento de cuádriceps de pie — 30s/lado"
     ],
     technicalAnalysis: {
-      objectives: "Bisagra de cadera (isquiotibiales/glúteo) unilateral como eje, con cuádriceps en formato máquina como segundo compuesto — completa el estímulo que Lower A no cubrió, sin repetir el patrón de carga axial libre.",
+      objectives: "Bisagra de cadera (isquiotibiales/glúteo) unilateral como eje, con cuádriceps unilateral (step-up) como segundo estímulo — completa lo que Lower A no cubrió, sin repetir el patrón de carga axial libre y sin depender de prensa, hack ni polea baja sentada.",
       tips: "En el RDL B-Stance, el tope de esfuerzo es RPE 7 — en bisagra de cadera priorizamos siempre el control de columna por sobre el último gramo de esfuerzo.",
       strategies: "Series efectivas totales: ~15 en bloques principales + 4 en el finisher + 6 en el core opcional = 25 en modo completo. RPE tope 7-8, igual que el resto de la semana."
     }
   },
   {
     id: "gluteo-viernes",
+    isLightDay: true,
     title: "VIERNES — GLÚTEO: Día de Especialización",
     subtitle: "Glúteo Mayor y Medio — Día de Menor Intensidad Sistémica",
     discipline: "Hipertrofia — Especialización",
-    level: "Día 5 · Glúteo · Semana 1",
+    level: "Día 5 · Glúteo",
     levelSlug: "gluteo-viernes",
     desc: "Sesión 5 de la semana, ahora fija (ex-Día 5 opcional de brazos) — foco 100% en glúteo mayor y medio, con intensidad reducida (RPE 6-7) para cerrar la semana sin sumar fatiga sistémica antes del descanso de fin de semana.",
     duration: { base: 55, full: 70 },
@@ -1120,6 +1242,7 @@ let completedSets = {};
 let currentWeek = 1;
 let currentMode = 'completo';
 let lastFocusedElement = null;
+let currentModalWorkout = null;
 const STORAGE_KEY_COMPLETED = 'coachjp_completed_workouts_v1';
 const STORAGE_KEY_SETS = 'coachjp_completed_sets_v1';
 const STORAGE_KEY_WEEK = 'coachjp_current_week_v1';
@@ -1464,9 +1587,18 @@ function updateWeekUI() {
   document.querySelectorAll('.week-btn').forEach((btn) => {
     btn.classList.toggle('active', parseInt(btn.getAttribute('data-week'), 10) === currentWeek);
   });
+  updateHeroForWeek();
+}
+function refreshModalIfOpen() {
+  const overlay = document.getElementById('overlay');
+  if (overlay && overlay.classList.contains('open') && currentModalWorkout) {
+    openModal(currentModalWorkout, lastFocusedElement);
+  }
 }
 function durationLabel(w) {
-  return (currentMode === 'rapido' ? w.duration.base : w.duration.full) + ' min';
+  let mins = currentMode === 'rapido' ? w.duration.base : w.duration.full;
+  if (currentWeek === 4) mins = Math.max(35, mins - 10);
+  return mins + ' min';
 }
 function blockSummary(w) {
   const parts = [];
@@ -1504,7 +1636,7 @@ function renderGrid(data) {
       <div class="card-body">
         <div class="card-tags">
           <span class="tag tag-disc-musculacion">${w.discipline}</span>
-          <span class="tag tag-level-avanzado">${w.level}</span>
+          <span class="tag tag-level-avanzado">${w.level} · Semana ${currentWeek}</span>
           ${isCompleted ? '<span class="tag tag-done">Completado</span>' : ''}
         </div>
         <h2>${w.title}</h2>
@@ -1546,17 +1678,18 @@ function renderWarmupRow(ex, idx) {
       <div class="exercise-detail"><b>${ex.reps}</b></div>
     </div>`;
 }
-function renderSimpleExRow(ex, key, idx) {
+function renderSimpleExRow(ex, key, idx, isLightDay) {
   const cueHtml = (ex.tips || ex.sensacion)
     ? `<div class="cue-note">${ex.tips ? `<b>💡 Pauta:</b> ${ex.tips}` : ''}${ex.tips && ex.sensacion ? '<br>' : ''}${ex.sensacion ? `<b>🧠 Sensación:</b> ${ex.sensacion}` : ''}</div>`
     : '';
+  const effSets = getEffectiveSets(ex.sets, currentWeek, false);
   return `
     <div class="exercise-row">
       <div class="exercise-num">${idx + 1}</div>
       <div class="exercise-title-container">
         <div class="exercise-name">${ex.name}${ex.yt ? ` <a class="video-link" href="javascript:void(0)" data-yt="${ex.yt}">▶ Ver técnica</a>` : ''}</div>
         ${cueHtml}
-        ${renderSetChecks(key, ex.sets)}
+        ${renderSetChecks(key, effSets)}
       </div>
       <div class="exercise-detail"><b>${ex.reps}</b>${ex.tempo ? '<br>Tempo ' + ex.tempo : ''}${renderTimerWidget({ type: 'rest', seconds: ex.restSeconds })}${renderTempoNote(ex.tempo)}</div>
     </div>`;
@@ -1564,6 +1697,7 @@ function renderSimpleExRow(ex, key, idx) {
 function renderApproachProtocol(workout) {
   const ap = workout.approachProtocol;
   if (!ap) return '';
+  const meta = getWeekMeta(currentWeek);
   const stepsHtml = ap.steps.map((s) => `<p style="margin-bottom:0.5rem;"><strong style="color:var(--gold)">${s.label}:</strong> ${s.detail}</p>`).join('');
   return `
     <div class="block" style="border: 1px dashed rgba(255,214,0,0.35); background: rgba(255,214,0,0.02);">
@@ -1572,25 +1706,31 @@ function renderApproachProtocol(workout) {
         <p style="margin-bottom: 0.9rem;">${ap.intro}</p>
         ${stepsHtml}
         <p style="margin-top: 0.9rem;"><strong style="color: var(--fire-glow)">📐 Regla práctica:</strong> ${ap.rule}</p>
+        <p style="margin-top: 0.6rem;"><strong style="color: var(--teal-light)">📅 En ${meta.shortLabel}:</strong> ${meta.approachHint}</p>
         <p style="margin-top: 0.6rem; font-size: 12px; color: var(--text-muted);"><strong>Aplica a:</strong> ${ap.appliesTo}</p>
       </div>
     </div>`;
 }
 function renderMainBlock(workout, block, idx) {
   const blockId = 'main-' + idx;
+  const week = currentWeek;
+  const isAnchorTopSetWeek = week === 3 && block.isAnchor && block.format === 'straight';
   let exHtml = '';
   block.exercises.forEach((ex, exIdx) => {
     const key = workout.id + '-' + blockId + '-e' + exIdx;
     const labelHtml = ex.label
       ? `<div class="group-ex-label">${ex.label}</div>`
       : `<div class="group-ex-label" style="background:var(--fire);">${exIdx + 1}</div>`;
+    const effSets = getEffectiveSets(ex.sets, week, isAnchorTopSetWeek);
+    const effReps = getEffectiveReps(ex, block, week);
+    const effRpe = ex.rpe ? getEffectiveRpe(ex.rpe, week, workout.isLightDay) : '';
     exHtml += `
       <div class="group-ex-row">
         ${labelHtml}
         <div class="group-ex-main">
           <div class="group-ex-name">${ex.name}${ex.yt ? ` <a class="video-link" href="javascript:void(0)" data-yt="${ex.yt}">▶ Ver técnica</a>` : ''}</div>
-          <div class="group-ex-detail"><b>${ex.reps}</b>${ex.tempo ? ' · Tempo ' + ex.tempo : ''}${ex.rpe ? ' · ' + ex.rpe : ''}${renderTempoNote(ex.tempo)}</div>
-          ${renderSetChecks(key, ex.sets)}
+          <div class="group-ex-detail"><b>${effReps}</b>${ex.tempo ? ' · Tempo ' + ex.tempo : ''}${effRpe ? ' · ' + effRpe : ''}${renderTempoNote(ex.tempo)}</div>
+          ${renderSetChecks(key, effSets)}
         </div>
       </div>`;
   });
@@ -1601,11 +1741,16 @@ function renderMainBlock(workout, block, idx) {
       ${renderTimerWidget({ type: 'rest', seconds: block.restSeconds })}
     </div>`;
   const formatLabel = block.format === 'straight' ? 'Serie Recta' : (block.format === 'biset' ? 'Biset' : 'Triset');
+  const anchorTag = block.isAnchor ? '<span class="block-optional-tag" style="background:rgba(255,214,0,0.14); color:var(--gold);">🔑 Ejercicio Ancla</span>' : '';
+  const topSetBanner = isAnchorTopSetWeek
+    ? `<p style="margin-top:6px;"><strong style="color:var(--fire-glow)">🔑 Semana 3 — Esquema Heavy Duty:</strong> este bloque usa Top Set + Back-off en vez de las 3 series habituales (ver detalle en la tabla de arriba).</p>`
+    : '';
   return `
     <div class="group-block">
       <div class="group-block-header">
         <div class="group-block-title-wrap">
           <div class="group-block-title">${block.title}</div>
+          ${anchorTag}
           <span class="group-complete-badge">✓ Completo</span>
         </div>
         <span class="format-tag ${block.format}">${formatLabel}</span>
@@ -1617,6 +1762,7 @@ function renderMainBlock(workout, block, idx) {
         <p><strong style="color:var(--fire-glow)">🎯 Objetivo:</strong> ${block.objetivo}</p>
         <p><strong style="color:var(--violet-light)">🧠 Qué deberías sentir:</strong> ${block.sensacion || 'Foco en la conexión mente-músculo del grupo trabajado, no solo en mover la carga.'}</p>
         ${block.approachNote ? `<p><strong style="color:var(--gold)">🪜 Aproximación:</strong> ${block.approachNote}</p>` : ''}
+        ${topSetBanner}
       </div>
     </div>`;
 }
@@ -1692,6 +1838,7 @@ function renderCooldown(list) {
    ============================================================ */
 function openModal(w, triggerEl) {
   clearAllExTimers();
+  currentModalWorkout = w;
   lastFocusedElement = triggerEl || document.activeElement;
   const overlay = document.getElementById('overlay');
   const title = document.getElementById('modal-title');
@@ -1701,9 +1848,10 @@ function openModal(w, triggerEl) {
   title.innerHTML = `${w.title}<br><span style="font-size:14px; font-family:'Inter'; font-weight:400; color:var(--text-secondary);">${w.subtitle} · ${durationLabel(w)}</span>`;
   tags.innerHTML = `
     <span class="tag tag-disc-musculacion">${w.discipline}</span>
-    <span class="tag tag-level-avanzado">${w.level}</span>
+    <span class="tag tag-level-avanzado">${w.level} · Semana ${currentWeek}</span>
   `;
   let html = '';
+  html += renderWeekGuide(w);
   if (w.warmup && w.warmup.length > 0) {
     html += `
       <div class="block">
@@ -1785,6 +1933,7 @@ function handleModalKeydown(e) {
 }
 function closeModal() {
   closeVideoPopup();
+  currentModalWorkout = null;
   document.getElementById('overlay').classList.remove('open');
   document.removeEventListener('keydown', handleModalKeydown);
   if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
@@ -1835,6 +1984,8 @@ document.querySelectorAll('.week-btn').forEach((btn) => {
     currentWeek = parseInt(btn.getAttribute('data-week'), 10);
     updateWeekUI();
     await saveWeek();
+    filterGrid();
+    refreshModalIfOpen();
   });
 });
 document.getElementById('reset-progress').addEventListener('click', async () => {
