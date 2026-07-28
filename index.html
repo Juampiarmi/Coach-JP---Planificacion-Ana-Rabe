@@ -430,30 +430,240 @@
     .progress-wrap { max-width: 100%; }
     .modal-body, .modal-content { -webkit-overflow-scrolling: touch; }
   }
+  /* ============================================================
+     STEEL VAULT, RAW CHALK, HIGH-VOLTAGE JP & HEAVY DUTY HUD
+     Capa de diseño visual añadida sobre el sistema existente.
+     No reemplaza reglas anteriores: solo expande CSS/HTML/UX.
+     ============================================================ */
+  :root {
+    --hv-cyan: #00BFA5;
+    --hv-amber: #FF3D00;
+    --hv-gold: #FFD600;
+    --hv-black: #000000;
+  }
+  /* ---------- Fondo cinematográfico "Steel Vault & Raw Chalk" ---------- */
+  .bg-scene { position: fixed; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; background: #08080a; }
+  .bg-layer { position: absolute; inset: -6% -6%; will-change: transform; }
+  .bg-layer-steel {
+    background:
+      radial-gradient(ellipse 900px 700px at 18% -4%, rgba(255,255,255,0.05), transparent 60%),
+      radial-gradient(ellipse 1000px 820px at 88% 100%, rgba(0,0,0,0.65), transparent 55%),
+      repeating-linear-gradient(115deg, rgba(255,255,255,0.014) 0px, rgba(255,255,255,0.014) 1px, transparent 1px, transparent 3px),
+      linear-gradient(160deg, #232326 0%, #18181b 38%, #0d0d0f 72%, #0a0a0b 100%);
+    box-shadow: inset 0 0 260px 110px rgba(0,0,0,0.8);
+  }
+  .bg-layer-grid {
+    opacity: 0.2;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,214,0,0.055) 0px, rgba(255,214,0,0.055) 1px, transparent 1px, transparent 92px),
+      repeating-linear-gradient(90deg, rgba(255,214,0,0.055) 0px, rgba(255,214,0,0.055) 1px, transparent 1px, transparent 92px),
+      repeating-linear-gradient(48deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 2px, transparent 2px, transparent 15px);
+    -webkit-mask-image: radial-gradient(ellipse 1500px 1100px at 50% 15%, #000 35%, transparent 85%);
+    mask-image: radial-gradient(ellipse 1500px 1100px at 50% 15%, #000 35%, transparent 85%);
+  }
+  .bg-layer-dust { opacity: 0.6; }
+  .chalk-mote {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.92), rgba(255,255,255,0) 72%);
+    filter: blur(0.4px);
+    animation: chalkDrift linear infinite;
+  }
+  @keyframes chalkDrift {
+    0% { transform: translate3d(0,0,0); opacity: 0; }
+    12% { opacity: 0.85; }
+    88% { opacity: 0.5; }
+    100% { transform: translate3d(var(--drift-x, 20px), -125vh, 0); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .chalk-mote { display: none; }
+    .bg-layer { transform: none !important; }
+  }
+  /* ---------- "JP" Static Electricity / High-Voltage ---------- */
+  .nav-brand-wordmark { position: relative; }
+  .nav-brand-text .electric-jp {
+    position: relative;
+    display: inline-block;
+    color: var(--hv-gold);
+    text-shadow: 0 0 4px var(--hv-gold), 0 0 10px var(--hv-amber), 0 0 20px rgba(255,61,0,0.7), 0 0 2px #fff;
+    animation: electricFlicker 2.6s infinite steps(1);
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
+  }
+  @keyframes electricFlicker {
+    0%, 3%, 6%, 100% { opacity: 1; color: var(--hv-gold); text-shadow: 0 0 4px var(--hv-gold), 0 0 10px var(--hv-amber), 0 0 22px rgba(255,61,0,0.75), 0 0 2px #fff; }
+    4% { opacity: 0.35; color: var(--hv-cyan); text-shadow: 0 0 3px var(--hv-cyan); }
+    7% { opacity: 0.85; }
+    42% { opacity: 1; }
+    43% { opacity: 0.4; color: var(--hv-cyan); text-shadow: 0 0 12px var(--hv-cyan), 0 0 24px rgba(0,191,165,0.7); }
+    44% { opacity: 1; color: var(--hv-gold); }
+    71% { opacity: 1; }
+    72% { opacity: 0.5; }
+    73% { opacity: 1; }
+  }
+  .nav-brand:hover .electric-jp, .electric-jp.hv-surge {
+    animation: electricSurge 0.32s infinite steps(1) !important;
+  }
+  @keyframes electricSurge {
+    0%, 100% { opacity: 1; color: var(--hv-gold); text-shadow: 0 0 6px var(--hv-gold), 0 0 16px var(--hv-amber), 0 0 30px rgba(255,61,0,0.9); }
+    25% { opacity: 0.5; color: var(--hv-cyan); text-shadow: 0 0 14px var(--hv-cyan), 0 0 26px rgba(0,191,165,0.85); }
+    50% { opacity: 1; }
+    75% { opacity: 0.6; color: var(--hv-cyan); }
+  }
+  .nav-brand-wordmark::after {
+    content: '';
+    position: absolute;
+    right: -12px; top: -4px;
+    width: 24px; height: 24px;
+    background: radial-gradient(circle, rgba(0,191,165,0.55), transparent 65%);
+    filter: blur(3px);
+    opacity: 0;
+    animation: arcPulse 2.6s infinite;
+    pointer-events: none;
+  }
+  @keyframes arcPulse { 0%, 96%, 100% { opacity: 0; } 43% { opacity: 0.9; } 44% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .electric-jp, .nav-brand-wordmark::after { animation: none !important; text-shadow: 0 0 6px var(--hv-gold); opacity: 1; }
+  }
+  /* ---------- Logo bolt: oro sólido + borde negro ---------- */
+  .nav-logo-icon svg path { fill: var(--hv-gold); stroke: var(--hv-black); stroke-width: 1; stroke-linejoin: round; }
+  .nav-logo-icon { box-shadow: 0 6px 16px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -8px 12px rgba(0,0,0,0.5), 0 0 0 2px rgba(0,0,0,0.5), 0 0 16px rgba(255,214,0,0.35); }
+  /* ---------- Heavy Duty Industrial Glassmorphism: cards ---------- */
+  .card {
+    background: linear-gradient(160deg, rgba(32,32,36,0.72), rgba(9,9,10,0.86));
+    backdrop-filter: blur(18px) saturate(1.15);
+    -webkit-backdrop-filter: blur(18px) saturate(1.15);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-left: 4px solid rgba(255,255,255,0.16);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), inset 0 -1px 0 rgba(0,0,0,0.45), 0 18px 40px -18px rgba(0,0,0,0.75);
+  }
+  .card.card-accent-teal { border-left-color: var(--teal-light); }
+  .card.card-accent-fire { border-left-color: var(--fire-glow); }
+  .card.card-accent-violet { border-left-color: var(--violet-light); }
+  .card.card-accent-cyan { border-left-color: var(--hv-cyan); }
+  /* ---------- Glassmorphism + color semántico: bloques del modal ---------- */
+  .block, .group-block {
+    background: linear-gradient(155deg, rgba(255,255,255,0.03), rgba(0,0,0,0.2));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-left: 4px solid rgba(255,255,255,0.14);
+  }
+  .block.block-type-warmup { border-left-color: var(--gold); }
+  .block.block-type-main { border-left-color: var(--teal-light); }
+  .block.block-type-finisher { border-left-color: var(--fire-glow); }
+  .block.block-type-core { border-left-color: var(--violet-light); }
+  .block.block-type-cooldown { border-left-color: var(--hv-cyan); }
+  /* ---------- Microinteracciones: checkboxes / bloques completados ---------- */
+  .block.block-complete .block-title,
+  .group-block.block-complete .group-block-title {
+    text-decoration: line-through;
+    text-decoration-color: var(--teal-light);
+    opacity: 0.75;
+    transition: opacity 0.3s ease;
+  }
+  @keyframes glowFlash {
+    0% { box-shadow: 0 0 0 rgba(0,230,195,0), inset 0 0 0 rgba(0,230,195,0); }
+    25% { box-shadow: 0 0 32px 6px rgba(0,230,195,0.55), 0 0 70px 14px rgba(0,230,195,0.25), inset 0 0 20px rgba(0,230,195,0.15); }
+    100% { box-shadow: 0 0 0 rgba(0,230,195,0), inset 0 0 0 rgba(0,230,195,0); }
+  }
+  .glow-flash { animation: glowFlash 0.85s ease; }
+  @keyframes setCheckPulse { 0% { transform: scale(1); } 40% { transform: scale(1.35); box-shadow: 0 0 14px 4px rgba(0,230,195,0.7); } 100% { transform: scale(1); } }
+  .set-check.glow-flash-tick { animation: setCheckPulse 0.5s ease; }
+  @media (prefers-reduced-motion: reduce) { .glow-flash, .set-check.glow-flash-tick { animation: none !important; } }
+  /* ---------- Timer: glow flash sincronizado últimos 3 segundos ---------- */
+  .ex-timer.timer-critical { animation: timerCriticalGlow 1s ease infinite; }
+  .ex-timer.timer-critical .ex-timer-display { animation: timerCriticalPulse 1s ease infinite; color: var(--fire-glow); }
+  @keyframes timerCriticalGlow { 0%, 100% { box-shadow: none; } 50% { box-shadow: 0 0 26px 5px rgba(255,61,0,0.45); } }
+  @keyframes timerCriticalPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.14); } }
+  @media (prefers-reduced-motion: reduce) { .ex-timer.timer-critical, .ex-timer.timer-critical .ex-timer-display { animation: none !important; } }
+  /* ---------- Mini-HUD: Sticky Timer Player flotante ---------- */
+  .mini-hud {
+    position: fixed;
+    left: 50%;
+    bottom: -140px;
+    transform: translateX(-50%);
+    z-index: 250;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: linear-gradient(160deg, rgba(26,26,29,0.94), rgba(8,8,9,0.96));
+    backdrop-filter: blur(20px) saturate(1.2);
+    -webkit-backdrop-filter: blur(20px) saturate(1.2);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-top: 2px solid var(--hv-gold);
+    border-radius: 999px;
+    padding: 10px 12px 10px 18px;
+    box-shadow: 0 20px 50px -12px rgba(0,0,0,0.75), 0 0 0 1px rgba(0,0,0,0.5);
+    transition: bottom 0.35s cubic-bezier(0.16,1,0.3,1);
+    max-width: calc(100vw - 24px);
+  }
+  .mini-hud.visible { bottom: 18px; }
+  .mini-hud-phase { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); white-space: nowrap; }
+  .mini-hud-time { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 1.6rem; font-variant-numeric: tabular-nums; color: var(--text-primary); line-height: 1; min-width: 62px; }
+  .mini-hud.rest .mini-hud-time { color: var(--fire-glow); }
+  .mini-hud.work .mini-hud-time { color: var(--teal-light); }
+  .mini-hud.timer-critical .mini-hud-time { animation: timerCriticalPulse 1s ease infinite; }
+  .mini-hud-controls { display: flex; gap: 6px; }
+  .mini-hud-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: var(--text-primary); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 13px; transition: all 0.2s ease; flex-shrink: 0; }
+  .mini-hud-btn:hover { background: rgba(255,214,0,0.18); border-color: var(--hv-gold); }
+  @media (max-width: 640px) {
+    .mini-hud { left: 12px; right: 12px; transform: none; padding: 8px 10px 8px 14px; }
+    .mini-hud.visible { bottom: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .mini-hud { transition: none; } .mini-hud.timer-critical .mini-hud-time { animation: none !important; } }
+  /* ---------- Badge WakeLock: "Pantalla Activa / Bloqueada" ---------- */
+  .wakelock-badge {
+    position: fixed;
+    top: 84px;
+    right: 14px;
+    z-index: 260;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: rgba(10,10,11,0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+    transition: all 0.3s ease;
+  }
+  .wakelock-badge.visible { opacity: 1; transform: translateY(0); }
+  .wakelock-badge.active { color: var(--teal-light); border-color: rgba(0,137,123,0.4); }
+  .wakelock-badge .wl-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); flex-shrink: 0; }
+  .wakelock-badge.active .wl-dot { background: var(--teal-light); box-shadow: 0 0 8px rgba(77,182,172,0.8); animation: wlPulse 1.6s ease infinite; }
+  @keyframes wlPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  @media (max-width: 640px) { .wakelock-badge { top: auto; bottom: 90px; right: 10px; } }
+  @media (prefers-reduced-motion: reduce) { .wakelock-badge .wl-dot { animation: none !important; } }
 </style>
 </head>
 <body>
+<div class="bg-scene" aria-hidden="true">
+  <div class="bg-layer bg-layer-steel" id="bg-layer-steel"></div>
+  <div class="bg-layer bg-layer-grid" id="bg-layer-grid"></div>
+  <div class="bg-layer bg-layer-dust" id="bg-layer-dust"></div>
+</div>
 <nav>
   <a class="nav-brand" href="#">
     <div class="nav-logo-icon">
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <defs>
-          <linearGradient id="boltGrad" x1="4" y1="1" x2="19" y2="23" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stop-color="#FFFFFF"/>
-            <stop offset="60%" stop-color="#FFF6E0"/>
-            <stop offset="100%" stop-color="#FFD600"/>
-          </linearGradient>
-        </defs>
-        <path fill="url(#boltGrad)" fill-rule="evenodd" clip-rule="evenodd" d="M14.615 1.595a.75.75 0 01.359.852L12.982 9.75h7.268a.75.75 0 01.548 1.262l-10.5 11.25a.75.75 0 01-1.272-.71l1.992-7.302H3.75a.75.75 0 01-.548-1.262l10.5-11.25a.75.75 0 01.913-.143z"/>
+        <path fill="#FFD600" stroke="#000000" stroke-width="1" stroke-linejoin="round" fill-rule="evenodd" clip-rule="evenodd" d="M14.615 1.595a.75.75 0 01.359.852L12.982 9.75h7.268a.75.75 0 01.548 1.262l-10.5 11.25a.75.75 0 01-1.272-.71l1.992-7.302H3.75a.75.75 0 01-.548-1.262l10.5-11.25a.75.75 0 01.913-.143z"/>
       </svg>
     </div>
     <div class="nav-brand-wordmark">
-      <span class="nav-brand-text">COACH<span>&nbsp;JP</span></span>
+      <span class="nav-brand-text">COACH<span class="electric-jp">&nbsp;JP</span></span>
       <span class="nav-brand-tag">Heavy Duty Training</span>
     </div>
   </a>
   <div class="nav-right"><span class="nav-badge" id="nav-badge-level">Cargando…</span></div>
 </nav>
+<div class="wakelock-badge" id="wakelock-badge"><span class="wl-dot"></span><span id="wakelock-badge-text">Pantalla Bloqueada</span></div>
 <section class="hero">
   <p class="hero-eyebrow">Performance Hub — Atleta: <span id="student-name-text">Cargando…</span></p>
   <h1 id="hero-title">Plan de Entrenamiento<br><em id="student-objective-text">Cargando…</em></h1>
@@ -579,6 +789,14 @@
       <iframe id="video-popup-iframe" src="" title="Video técnica de ejercicio" frameborder="0" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
     <div class="video-popup-fallback">¿No carga? <a id="video-popup-fallback-link" href="#" target="_blank" rel="noopener">Abrilo en YouTube ↗</a></div>
+  </div>
+</div>
+<div class="mini-hud" id="mini-hud" role="status" aria-live="polite">
+  <span class="mini-hud-phase" id="mini-hud-phase">Descanso</span>
+  <span class="mini-hud-time" id="mini-hud-time">00:00</span>
+  <div class="mini-hud-controls">
+    <button type="button" class="mini-hud-btn" id="mini-hud-toggle" aria-label="Pausar/Reanudar temporizador">❚❚</button>
+    <button type="button" class="mini-hud-btn" id="mini-hud-reset" aria-label="Reiniciar temporizador">↺</button>
   </div>
 </div>
 <script>
@@ -711,10 +929,10 @@ function updateHeroForWeek() {
 const workouts = [
   {
     id: "upper-a",
-    title: "UPPER A — Empuje y Tracción Horizontal",
+    title: "DÍA 1 — UPPER A: Empuje y Tracción Horizontal",
     subtitle: "Pecho, Espalda, Hombros, Brazos",
     discipline: "Hipertrofia — Tren Superior",
-    level: "Upper A",
+    level: "Día 1 · Upper A",
     levelSlug: "upper-a",
     desc: "Sesión 1 del mesociclo — aclimatación progresiva post-10K. Press de banca y remo sentado como ejes (con soporte de torso), biset de empuje vertical sentado + salud de hombro, triset de espalda y brazos, finisher de bombeo controlado y cierre de core anti-rotación.",
     duration: { base: 60, full: 80 },
@@ -820,10 +1038,10 @@ const workouts = [
   },
   {
     id: "lower-a",
-    title: "LOWER A — Cuádriceps-dominante + Glúteo",
+    title: "DÍA 2 — LOWER A: Cuádriceps-dominante + Glúteo",
     subtitle: "Piernas — Cuádriceps y Glúteo",
     discipline: "Hipertrofia — Tren Inferior",
-    level: "Lower A",
+    level: "Día 2 · Lower A",
     levelSlug: "lower-a",
     desc: "Sesión 2 de la semana — Sentadilla Goblet e Hip Thrust como ejes, sin carga axial libre en columna y sin depender de prensa ni máquinas específicas, biset unilateral búlgara + isquios, triset de glúteo medio y gemelo, finisher controlado y cierre de core anti-extensión.",
     duration: { base: 60, full: 80 },
@@ -927,10 +1145,10 @@ const workouts = [
   },
   {
     id: "upper-b",
-    title: "UPPER B — Empuje Inclinado / Tracción Vertical",
+    title: "DÍA 3 — UPPER B: Empuje Inclinado / Tracción Vertical",
     subtitle: "Hombro Lateral y Brazos",
     discipline: "Hipertrofia — Tren Superior",
-    level: "Upper B",
+    level: "Día 3 · Upper B",
     levelSlug: "upper-b",
     desc: "Sesión 3 de la semana — Press inclinado y dominadas como ejes, biset de empuje rotacional sentado + deltoide posterior, triset de espalda media y brazos en estiramiento, finisher de deltoide lateral y cierre de core.",
     duration: { base: 60, full: 80 },
@@ -1034,10 +1252,10 @@ const workouts = [
   },
   {
     id: "lower-b",
-    title: "LOWER B — Bisagra de Cadera / Isquiotibiales",
+    title: "DÍA 4 — LOWER B: Bisagra de Cadera / Isquiotibiales",
     subtitle: "Piernas — Isquiotibiales y Glúteo",
     discipline: "Hipertrofia — Tren Inferior",
-    level: "Lower B",
+    level: "Día 4 · Lower B",
     levelSlug: "lower-b",
     desc: "Sesión 4 de la semana — Peso Muerto Rumano B-Stance y Step-up de Cuádriceps como ejes (ambos con mínima demanda lumbar y sin depender de prensa, hack ni polea baja sentada), biset de zancadas + gemelo, triset de glúteo/aductor/isquios, finisher y cierre de core.",
     duration: { base: 60, full: 80 },
@@ -1142,7 +1360,7 @@ const workouts = [
   {
     id: "gluteo-viernes",
     isLightDay: true,
-    title: "VIERNES — GLÚTEO: Día de Especialización",
+    title: "DÍA 5 — VIERNES · GLÚTEO: Día de Especialización",
     subtitle: "Glúteo Mayor y Medio — Día de Menor Intensidad Sistémica",
     discipline: "Hipertrofia — Especialización",
     level: "Día 5 · Glúteo",
@@ -1254,20 +1472,34 @@ const STORAGE_KEY_MODE = 'coachjp_mode_v1';
 let wakeLockRef = null;
 let activeTimersCount = 0;
 const timerIntervals = new Map();
+/* --- Steel Vault / High-Voltage: estado de UI adicional (no forma parte del modelo de datos) --- */
+let trackedTimerEl = null;
+let miniHudObserver = null;
 async function acquireWakeLock() {
   if (wakeLockRef) return;
   try {
     if ('wakeLock' in navigator) {
       wakeLockRef = await navigator.wakeLock.request('screen');
-      wakeLockRef.addEventListener('release', () => { wakeLockRef = null; });
+      wakeLockRef.addEventListener('release', () => { wakeLockRef = null; updateWakeLockBadge(); });
     }
   } catch (e) { /* no soportado o permiso denegado */ }
+  updateWakeLockBadge();
 }
 async function releaseWakeLockIfIdle() {
   if (activeTimersCount <= 0 && wakeLockRef) {
     try { await wakeLockRef.release(); } catch (e) { /* noop */ }
     wakeLockRef = null;
   }
+  updateWakeLockBadge();
+}
+function updateWakeLockBadge() {
+  const badge = document.getElementById('wakelock-badge');
+  if (!badge) return;
+  const textEl = document.getElementById('wakelock-badge-text');
+  const active = !!wakeLockRef;
+  badge.classList.toggle('active', active);
+  badge.classList.toggle('visible', activeTimersCount > 0 || active);
+  if (textEl) textEl.textContent = active ? 'Pantalla Activa' : 'Pantalla Bloqueada';
 }
 document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState === 'visible' && activeTimersCount > 0) {
@@ -1298,6 +1530,21 @@ function playTimerBeep() {
     osc.onended = () => ctx.close();
   } catch (e) { /* noop */ }
 }
+function playTickBeep(remaining) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = 660 + (3 - remaining) * 40;
+    gain.gain.setValueAtTime(0.11, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.18);
+    osc.onended = () => ctx.close();
+  } catch (e) { /* noop */ }
+}
 async function startExTimer(el) {
   el.dataset.running = '1';
   el.classList.add('running');
@@ -1306,34 +1553,49 @@ async function startExTimer(el) {
   if (btn) { btn.textContent = '❚❚'; btn.setAttribute('aria-label', 'Pausar temporizador'); }
   activeTimersCount++;
   await acquireWakeLock();
+  updateMiniHudControls(el);
+  updateWakeLockBadge();
   const interval = setInterval(() => {
     let remaining = parseInt(el.dataset.remaining, 10) - 1;
     if (remaining <= 0) {
       el.dataset.remaining = '0';
       updateTimerDisplay(el, 0);
+      el.classList.remove('timer-critical');
       finishExTimer(el);
       return;
     }
     el.dataset.remaining = String(remaining);
     updateTimerDisplay(el, remaining);
+    if (remaining <= 3) {
+      el.classList.add('timer-critical');
+      playTickBeep(remaining);
+    } else {
+      el.classList.remove('timer-critical');
+    }
+    syncMiniHudFromTimer(el, remaining);
   }, 1000);
   timerIntervals.set(el, interval);
 }
 function pauseExTimer(el) {
   el.dataset.running = '0';
   el.classList.remove('running');
+  el.classList.remove('timer-critical');
   const btn = el.querySelector('.ex-timer-toggle');
   if (btn) { btn.textContent = '▶'; btn.setAttribute('aria-label', 'Iniciar temporizador'); }
   const interval = timerIntervals.get(el);
   if (interval) { clearInterval(interval); timerIntervals.delete(el); }
   activeTimersCount = Math.max(0, activeTimersCount - 1);
   releaseWakeLockIfIdle();
+  updateMiniHudControls(el);
+  updateWakeLockBadge();
+  if (trackedTimerEl === el) { hideMiniHud(); trackedTimerEl = null; }
 }
 function finishExTimer(el) {
   const interval = timerIntervals.get(el);
   if (interval) { clearInterval(interval); timerIntervals.delete(el); }
   el.dataset.running = '0';
   el.classList.remove('running');
+  el.classList.remove('timer-critical');
   el.classList.add('done');
   const btn = el.querySelector('.ex-timer-toggle');
   if (btn) { btn.textContent = '▶'; btn.setAttribute('aria-label', 'Iniciar temporizador'); }
@@ -1341,6 +1603,8 @@ function finishExTimer(el) {
   releaseWakeLockIfIdle();
   playTimerBeep();
   if (navigator.vibrate) { try { navigator.vibrate([200, 100, 200]); } catch (e) { /* noop */ } }
+  updateWakeLockBadge();
+  if (trackedTimerEl === el) { hideMiniHud(); trackedTimerEl = null; }
 }
 function resetExTimer(el) {
   pauseExTimer(el);
@@ -1348,6 +1612,7 @@ function resetExTimer(el) {
   el.dataset.remaining = String(total);
   updateTimerDisplay(el, total);
   el.classList.remove('done');
+  el.classList.remove('timer-critical');
 }
 function toggleExTimer(el) {
   if (el.dataset.running === '1') { pauseExTimer(el); } else { startExTimer(el); }
@@ -1373,6 +1638,69 @@ function renderTimerWidget(timer) {
       </div>
     </div>`;
 }
+/* ============================================================
+   MINI-HUD — Sticky Timer Player flotante (aparece cuando un
+   temporizador corriendo sale del viewport)
+   ============================================================ */
+function triggerGlowFlash(el) {
+  if (!el) return;
+  el.classList.remove('glow-flash');
+  void el.offsetWidth;
+  el.classList.add('glow-flash');
+  const handler = () => { el.classList.remove('glow-flash'); el.removeEventListener('animationend', handler); };
+  el.addEventListener('animationend', handler);
+}
+function initTimerObserver() {
+  if (!('IntersectionObserver' in window)) return;
+  if (miniHudObserver) { miniHudObserver.disconnect(); }
+  miniHudObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const el = entry.target;
+      if (el.dataset.running === '1' && !entry.isIntersecting) {
+        trackedTimerEl = el;
+        showMiniHud(el);
+      } else if (entry.isIntersecting && trackedTimerEl === el) {
+        hideMiniHud();
+        trackedTimerEl = null;
+      }
+    });
+  }, { threshold: 0 });
+  document.querySelectorAll('#modal-exercises-content .ex-timer').forEach((el) => miniHudObserver.observe(el));
+}
+function showMiniHud(el) {
+  const hud = document.getElementById('mini-hud');
+  if (!hud) return;
+  hud.classList.remove('work', 'rest');
+  hud.classList.add(el.classList.contains('work') ? 'work' : 'rest');
+  const phaseEl = document.getElementById('mini-hud-phase');
+  const tagEl = el.querySelector('.ex-timer-tag');
+  if (phaseEl) phaseEl.textContent = tagEl ? tagEl.textContent : (el.classList.contains('work') ? 'Trabajo' : 'Descanso');
+  const remaining = parseInt(el.dataset.remaining, 10) || 0;
+  const timeEl = document.getElementById('mini-hud-time');
+  if (timeEl) timeEl.textContent = formatTime(remaining);
+  hud.classList.toggle('timer-critical', remaining > 0 && remaining <= 3);
+  hud.classList.add('visible');
+  updateMiniHudControls(el);
+}
+function hideMiniHud() {
+  const hud = document.getElementById('mini-hud');
+  if (hud) { hud.classList.remove('visible'); }
+}
+function syncMiniHudFromTimer(el, remaining) {
+  if (trackedTimerEl !== el) return;
+  const hud = document.getElementById('mini-hud');
+  if (!hud || !hud.classList.contains('visible')) return;
+  const timeEl = document.getElementById('mini-hud-time');
+  if (timeEl) timeEl.textContent = formatTime(remaining);
+  hud.classList.toggle('timer-critical', remaining > 0 && remaining <= 3);
+}
+function updateMiniHudControls(el) {
+  if (trackedTimerEl !== el) return;
+  const toggleBtn = document.getElementById('mini-hud-toggle');
+  if (toggleBtn) toggleBtn.textContent = el.dataset.running === '1' ? '❚❚' : '▶';
+}
+document.getElementById('mini-hud-toggle').addEventListener('click', () => { if (trackedTimerEl) toggleExTimer(trackedTimerEl); });
+document.getElementById('mini-hud-reset').addEventListener('click', () => { if (trackedTimerEl) resetExTimer(trackedTimerEl); });
 /* ============================================================
    TEMPO — decodifica notación de 4 dígitos (excéntrica-pausa-
    concéntrica-pausa) a texto explicativo
@@ -1431,6 +1759,9 @@ async function toggleSetCheck(btn) {
   } else {
     completedSets[key] = true;
     btn.classList.add('done');
+    btn.classList.remove('glow-flash-tick');
+    void btn.offsetWidth;
+    btn.classList.add('glow-flash-tick');
   }
   await saveSetChecks();
   updateBlockCompletionBadge(btn.closest('.group-block') || btn.closest('.block'));
@@ -1440,7 +1771,11 @@ function updateBlockCompletionBadge(container) {
   const checks = container.querySelectorAll('.set-check');
   if (!checks.length) return;
   const allDone = Array.from(checks).every((c) => c.classList.contains('done'));
+  const wasComplete = container.classList.contains('block-complete');
   container.classList.toggle('block-complete', allDone);
+  if (allDone && !wasComplete) {
+    triggerGlowFlash(container);
+  }
 }
 function refreshAllBlockBadges() {
   document.querySelectorAll('.group-block, #modal-exercises-content > .block').forEach((container) => {
@@ -1608,6 +1943,12 @@ function blockSummary(w) {
   if (w.core) parts.push('Core');
   return parts.join(' · ');
 }
+function cardAccentClass(w) {
+  if (w.id && w.id.indexOf('upper') === 0) return 'card-accent-teal';
+  if (w.id && w.id.indexOf('lower') === 0) return 'card-accent-fire';
+  if (w.id === 'gluteo-viernes') return 'card-accent-violet';
+  return 'card-accent-cyan';
+}
 function renderGrid(data) {
   const grid = document.getElementById('grid');
   const meta = document.getElementById('grid-meta');
@@ -1626,7 +1967,7 @@ function renderGrid(data) {
   data.forEach((w) => {
     const isCompleted = completedWorkouts.includes(w.id);
     const card = document.createElement('div');
-    card.className = `card ${isCompleted ? 'completed' : ''}`;
+    card.className = `card ${cardAccentClass(w)} ${isCompleted ? 'completed' : ''}`;
     card.setAttribute('data-id', w.id);
     card.setAttribute('tabindex', '0');
     card.setAttribute('role', 'button');
@@ -1783,7 +2124,7 @@ function renderFinisher(workout) {
       </div>`;
   });
   return `
-    <div class="block">
+    <div class="block block-type-finisher">
       <div class="block-header"><div class="block-title metcon">⚡ Finisher — Bombeo Final</div></div>
       <div class="block-content">
         <div class="group-block" style="margin-top:0;">
@@ -1816,7 +2157,7 @@ function renderCore(workout) {
     return renderSimpleExRow(ex, key, idx);
   }).join('');
   return `
-    <div class="block js-optional-block">
+    <div class="block js-optional-block block-type-core">
       <div class="block-header">
         <div class="block-header-row">
           <div class="block-title core">🧩 Bloque Opcional — Core <span class="block-optional-tag">Modo Completo</span></div>
@@ -1828,7 +2169,7 @@ function renderCore(workout) {
 }
 function renderCooldown(list) {
   return `
-    <div class="block">
+    <div class="block block-type-cooldown">
       <div class="block-header"><div class="block-title" style="color:var(--gold);">🧘 Cool-Down y Movilidad</div></div>
       <div class="block-content"><ul class="cooldown-list">${list.map((t) => `<li>${t}</li>`).join('')}</ul></div>
     </div>`;
@@ -1854,7 +2195,7 @@ function openModal(w, triggerEl) {
   html += renderWeekGuide(w);
   if (w.warmup && w.warmup.length > 0) {
     html += `
-      <div class="block">
+      <div class="block block-type-warmup">
         <div class="block-header"><div class="block-title warmup">🔥 Warm Up / Activación Específica</div></div>
         <div class="block-content">`;
     w.warmup.forEach((ex, idx) => { html += renderWarmupRow(ex, idx); });
@@ -1863,7 +2204,7 @@ function openModal(w, triggerEl) {
   html += renderApproachProtocol(w);
   if (w.main && w.main.length > 0) {
     html += `
-      <div class="block">
+      <div class="block block-type-main">
         <div class="block-header"><div class="block-title main">🏋️‍♂️ Bloques Principales</div></div>
         <div class="block-content" style="padding-top:0.75rem;">`;
     w.main.forEach((block, idx) => { html += renderMainBlock(w, block, idx); });
@@ -1887,6 +2228,7 @@ function openModal(w, triggerEl) {
   bodyContent.innerHTML = html;
   applyModeToModal();
   refreshAllBlockBadges();
+  initTimerObserver();
   if (completedWorkouts.includes(w.id)) {
     btnComplete.textContent = 'Sesión completada ✓';
     btnComplete.classList.add('done');
@@ -1939,6 +2281,9 @@ function closeModal() {
   if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
     lastFocusedElement.focus();
   }
+  if (miniHudObserver) { miniHudObserver.disconnect(); }
+  trackedTimerEl = null;
+  hideMiniHud();
 }
 document.getElementById('modal-close').addEventListener('click', closeModal);
 document.querySelectorAll('.btn-close-modal').forEach((btn) => btn.addEventListener('click', closeModal));
@@ -1997,6 +2342,43 @@ document.getElementById('reset-progress').addEventListener('click', async () => 
   filterGrid();
 });
 /* ============================================================
+   FONDO CINEMÁTICO — "Steel Vault & Raw Chalk" (partículas +
+   parallax de scroll, respeta prefers-reduced-motion)
+   ============================================================ */
+function initBackgroundScene() {
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const steelLayer = document.getElementById('bg-layer-steel');
+  const gridLayer = document.getElementById('bg-layer-grid');
+  const dustLayer = document.getElementById('bg-layer-dust');
+  if (!steelLayer || !gridLayer || !dustLayer || reduceMotion) return;
+  const moteCount = window.innerWidth < 640 ? 16 : 32;
+  for (let i = 0; i < moteCount; i++) {
+    const mote = document.createElement('div');
+    mote.className = 'chalk-mote';
+    const size = 2 + Math.random() * 4;
+    mote.style.width = size + 'px';
+    mote.style.height = size + 'px';
+    mote.style.left = (Math.random() * 100) + 'vw';
+    mote.style.top = (100 + Math.random() * 20) + 'vh';
+    mote.style.setProperty('--drift-x', (Math.random() * 80 - 40) + 'px');
+    mote.style.animationDuration = (14 + Math.random() * 16) + 's';
+    mote.style.animationDelay = (Math.random() * 20) + 's';
+    dustLayer.appendChild(mote);
+  }
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const y = window.scrollY || window.pageYOffset || 0;
+      steelLayer.style.transform = 'translate3d(0,' + (y * 0.04) + 'px,0)';
+      gridLayer.style.transform = 'translate3d(0,' + (y * 0.09) + 'px,0)';
+      dustLayer.style.transform = 'translate3d(0,' + (y * 0.15) + 'px,0)';
+      ticking = false;
+    });
+  }, { passive: true });
+}
+/* ============================================================
    INIT
    ============================================================ */
 async function init() {
@@ -2005,6 +2387,8 @@ async function init() {
   updateWeekUI();
   updateModeUI();
   filterGrid();
+  initBackgroundScene();
+  updateWakeLockBadge();
 }
 init();
 </script>
